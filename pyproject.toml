@@ -11,6 +11,9 @@ aws-cdk-lib = "^2.51.1"
 constructs = "^10.1.170"
 
 
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
