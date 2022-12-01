@@ -38,6 +38,8 @@ class WebsocketPipelineStack(cdk.Stack):
                 commands=[
                     "npm install -g aws-cdk",
                     "python -m pip install -r requirements.txt",
+                    "python -m pip install docker",
+                    "systemctl start docker",
                     "cdk synth"]
             )
         )
