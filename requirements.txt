@@ -13,7 +13,6 @@ publication==0.0.3
 pycodestyle==2.10.0
 python-dateutil==2.8.2
 six==1.16.0
--e git+ssh://git@github.com/IPI-k-watanabe/talking3.git@a8551ce119f53d5938ce3ac78c1c4b6a7d5cf027#egg=talking3
 tomli==2.0.1
 typeguard==2.13.3
 typing_extensions==4.4.0
