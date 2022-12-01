@@ -21,14 +21,14 @@ TestPipelineStack(
     )
 )
 
-# WebsocketPipelineStack(
-#     app, 
-#     construct_id="WebSocketPipelineStack", 
-#     env=cdk.Environment(
-#         account=app.node.try_get_context(deploy_target)["ACCOUNT"],
-#         region=app.node.try_get_context(deploy_target)["REGION"],
-#     )
-# )
+WebsocketPipelineStack(
+    app, 
+    construct_id="WebSocketPipelineStack", 
+    env=cdk.Environment(
+        account=app.node.try_get_context(deploy_target)["ACCOUNT"],
+        region=app.node.try_get_context(deploy_target)["REGION"],
+    )
+)
 
 
 app.synth()

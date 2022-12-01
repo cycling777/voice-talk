@@ -42,19 +42,24 @@ class WebsocketPipelineStack(cdk.Stack):
             )
         )
 
-        # dev_stage = pipeline.add_stage(
-        #     ApplicationStage(
-        #         self,
-        #         id=deploy_target,
-        #         deploy_target=deploy_target, 
-        #         env=cdk.Environment(
-        #             account=config["ACCOUNT"],
-        #             region=config["REGION"],
-        #         )
-        #     )
-        # )
+        dev_stage = pipeline.add_stage(
+            ApplicationStage(
+                self,
+                id=deploy_target,
+                deploy_target=deploy_target, 
+                env=cdk.Environment(
+                    account=config["ACCOUNT"],
+                    region=config["REGION"],
+                )
+            )
+        )
 
-        # dev_stage.add_post()
+        dev_stage.add_post(
+            ManualApprovalStep(
+                id="DevAsset",
+                commnet="Dev Deploy Stage Worked Correctly",
+            )
+        )
 
 class ApplicationStage(cdk.Stage):
     def __init__(self, scope, id, *, deploy_target: str, env=None, outdir=None):
