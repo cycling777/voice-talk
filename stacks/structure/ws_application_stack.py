@@ -27,7 +27,7 @@ class WebSocketApplicationStack(cdk.Stack):
 
         # DynamoDB Table for websocket connections
         connections_table = connection_table_stack.dynamodb_table
-        print("CONNECTIONS_TABLE: {}".format(connections_table.table_name))
+        # print("CONNECTIONS_TABLE: {}".format(connections_table.table_name))
         # Python Lambda for websocket connections
         websocket_function = websocket_function_stack.lambda_function
         websocket_function.add_environment(

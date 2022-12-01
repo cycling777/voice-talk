@@ -57,7 +57,7 @@ class WebsocketPipelineStack(cdk.Stack):
         dev_stage.add_post(
             ManualApprovalStep(
                 id="DevAsset",
-                commnet="Dev Deploy Stage Worked Correctly",
+                comment="Dev Deploy Stage Worked Correctly",
             )
         )
 

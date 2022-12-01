@@ -83,7 +83,8 @@ def ReadDynamodbTableConfig(yaml_path: str, deploy_target: str) -> dict:
             type=ATTRIBUTETYPE[row_config["sort_key"]["type"]]
         )
     except KeyError:
-        print("No Sort Key with {}".format(row_config["table_name"]))
+        pass
+        # print("No Sort Key with {}".format(row_config["table_name"]))
     # print("Config: {}".format(config))
     # Set Capacity Config
     capacity_config={}
