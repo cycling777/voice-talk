@@ -1,6 +1,9 @@
+import json
+
+
 def lambda_handler(event, context):
     response = {
-        'statusCode': 200,
+        'statusCode': 300,
         'body': 'This is a test from cdk pipeline',
         'headers': {
                 'Content-Type': 'application/json',

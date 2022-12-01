@@ -1,2 +1,19 @@
-aws-cdk-lib==2.51.1
-constructs>=10.0.0,<11.0.0
+attrs==22.1.0
+autopep8==2.0.0
+aws-cdk-lib==2.52.1
+aws-cdk.asset-awscli-v1==2.2.22
+aws-cdk.asset-kubectl-v20==2.1.1
+aws-cdk.asset-node-proxy-agent-v5==2.0.28
+aws-cdk.aws-apigatewayv2-alpha==2.52.1a0
+cattrs==22.2.0
+constructs==10.1.174
+exceptiongroup==1.0.4
+jsii==1.71.0
+publication==0.0.3
+pycodestyle==2.10.0
+python-dateutil==2.8.2
+six==1.16.0
+-e git+ssh://git@github.com/IPI-k-watanabe/talking3.git@a8551ce119f53d5938ce3ac78c1c4b6a7d5cf027#egg=talking3
+tomli==2.0.1
+typeguard==2.13.3
+typing_extensions==4.4.0

@@ -1,0 +1,8 @@
+id: WebsocketFuntion
+runtime: python3.9
+index: connection_handler.py
+handler: lambda_handler
+architecture: x86
+memory_size: 512
+timeout: 30
+environment:

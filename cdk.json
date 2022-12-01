@@ -36,7 +36,7 @@
     "@aws-cdk/aws-ecs:disableExplicitDeploymentControllerForCircuitBreaker": true,
     
     "deploy-target": "dev",
-    
+    "LAMBDA_ROOT_PATH": "lambdas",
     "dev": {
       "ACCOUNT": "958152586967",
       "REGION": "us-east-1",

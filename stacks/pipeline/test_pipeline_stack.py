@@ -1,10 +1,10 @@
 import aws_cdk as cdk
 from constructs import Construct
 from aws_cdk.pipelines import CodePipeline, CodePipelineSource, ShellStep
-from .lambda_stack import LambdaStack
+from ..component.test_lambda_stack import TestLambdaStack
 
 
-class PipelineStack(cdk.Stack):
+class TestPipelineStack(cdk.Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -40,9 +40,9 @@ class PipelineStack(cdk.Stack):
         )
 
         pipeline.add_stage(
-            LambdaApplicationStage(
+            ApplicationStage(
                 self,
-                "Prod",
+                id="Prod",
                 env=cdk.Environment(
                     account=account,
                     region=region,
@@ -50,9 +50,9 @@ class PipelineStack(cdk.Stack):
             )
         )
 
-class LambdaApplicationStage(cdk.Stage):
+class ApplicationStage(cdk.Stage):
     def __init__(self, scope, id, *, env=None, outdir=None):
         super().__init__(scope, id, env=env, outdir=outdir)
     
-        LambdaStack(self, "TestLambda")
+        TestLambdaStack(self, "TestLambda")
     

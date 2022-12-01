@@ -1,26 +1,34 @@
 #!/usr/bin/env python3
-import os
-
 import aws_cdk as cdk
 
-from talking3.talking3_stack import Talking3Stack
-from talking3.pipeline_stack import PipelineStack
+from stacks.pipeline.test_pipeline_stack import TestPipelineStack
+from stacks.pipeline.websocket_pipeline_stack import WebsocketPipelineStack
 
 
 app = cdk.App()
-deploy_target="dev" #default deploy target
+
 try:
     deploy_target=app.node.try_get_context("deploy-target")
 except AttributeError:
     deploy_target="dev"
 
-PipelineStack(
+TestPipelineStack(
     app, 
-    "PipelineStack", 
+    construct_id="PipelineStack", 
     env=cdk.Environment(
         account=app.node.try_get_context(deploy_target)["ACCOUNT"],
         region=app.node.try_get_context(deploy_target)["REGION"],
     )
 )
+
+# WebsocketPipelineStack(
+#     app, 
+#     construct_id="WebSocketPipelineStack", 
+#     env=cdk.Environment(
+#         account=app.node.try_get_context(deploy_target)["ACCOUNT"],
+#         region=app.node.try_get_context(deploy_target)["REGION"],
+#     )
+# )
+
 
 app.synth()

@@ -9,6 +9,12 @@ readme = "README.md"
 python = "^3.9"
 aws-cdk-lib = "^2.51.1"
 constructs = "^10.1.170"
+aws-cdk-aws-apigatewayv2-alpha = "^2.52.1a0"
+boto3 = "^1.26.17"
+aws-cdk-aws-apigatewayv2-authorizers-alpha = "^2.53.0a0"
+aws-cdk-aws-lambda-python-alpha = "^2.53.0a0"
+aws-cdk-aws-apigatewayv2-integrations-alpha = "^2.53.0a0"
+pyyaml = "^6.0"
 
 
 [tool.poetry.group.dev.dependencies]
