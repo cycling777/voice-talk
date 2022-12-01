@@ -65,7 +65,7 @@ class ApplicationStage(cdk.Stage):
     def __init__(self, scope, id, *, deploy_target: str, env=None, outdir=None):
         super().__init__(scope, id, env=env, outdir=outdir)
 
-        ComponentDirName = os.path.join(
+        component_dir_name = os.path.join(
             DirName, f"../../config/component/{deploy_target}")
 
         # call structure stack
@@ -73,5 +73,5 @@ class ApplicationStage(cdk.Stage):
             self,
             id=f"ws-stack-{deploy_target}",
             deploy_target=deploy_target,
-            component_dir_name=ComponentDirName,
+            component_dir_name=component_dir_name,
         )

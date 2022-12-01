@@ -9,20 +9,20 @@ from ..component.ws_api_gateway_stack import WebsocketApigatewayStack
 
 
 class WebSocketApplicationStack(cdk.Stack):
-    def __init__(self, scope: Construct, id: str, ComponentDirName: str, deploy_target: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, component_dir_name: str, deploy_target: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         # Call Stacks for artifacts in need
         connection_table_stack = DynamodbStack(
             self,
             id=f"WebsocketConnectionTable-{deploy_target}",
-            yaml_path=os.path.join(ComponentDirName, "ws_connection_table.yml")
+            yaml_path=os.path.join(component_dir_name, "ws_connection_table.yml")
         )
 
         websocket_function_stack = PythonLambdaStack(
             self,
             construct_id=f"WebsocketLambda-{deploy_target}",
-            yaml_path=os.path.join(ComponentDirName, "ws_lambda.yml")
+            yaml_path=os.path.join(component_dir_name, "ws_lambda.yml")
         )
 
         # DynamoDB Table for websocket connections
@@ -64,7 +64,7 @@ class WebSocketApplicationStack(cdk.Stack):
         websocket_apigateway_stack = WebsocketApigatewayStack(
             self,
             construct_id=f"WebSocketApiGateway-{deploy_target}",
-            yaml_path=os.path.join(ComponentDirName, "ws_apigateway.yml"),
+            yaml_path=os.path.join(component_dir_name, "ws_apigateway.yml"),
             connect_function=websocket_function,
             disconnect_function=websocket_function,
             chat_function=websocket_function,
