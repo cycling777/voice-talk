@@ -1,8 +1,10 @@
 import yaml
 import os
 import aws_cdk as cdk
+import aws_cdk.aws_ssm as ssm
 from constructs import Construct
 # from aws_cdk.aws_apigatewayv2_authorizers_alpha import WebSocketLambdaAuthorizer
+from aws_cdk.aws_lambda_python_alpha import PythonFunction
 from ..components.dynamodb_table_stack import DynamodbStack
 from ..components.python_lambda_stack import PythonLambdaStack
 from ..components.ws_api_gateway_stack import WebsocketApigatewayStack
@@ -36,7 +38,6 @@ class WebSocketApplicationStack(cdk.Stack):
             deploy_target=deploy_target,
         )
 
-        # DynamoDB Table for websocket connections
         connections_table = connections_table_stack.dynamodb_table
         ws_connect_disconnect_function = ws_connect_disconnect_function_stack.lambda_function
         ws_text_chat_function = ws_text_chat_function_stack.lambda_function
@@ -76,21 +77,30 @@ class WebSocketApplicationStack(cdk.Stack):
 
         # API Gateway for the websocket client
         websocket_api = websocket_apigateway_stack.websocket_api
-        websocket_stage = websocket_apigateway_stack.websocket_stage
-
 
         # Add connections, environment variables or grant permission for the instances
+        websocket_api.grant_manage_connections(ws_connect_disconnect_function)
+        websocket_api.grant_manage_connections(ws_text_chat_function)
+
+        # Get SSM Values
+        websocket_stage_url = ssm.StringParameter.from_string_parameter_name(
+            self,
+            id=f"WebsocketStageURL-{deploy_target}",
+            string_parameter_name=f"/WebsocketAPI/{deploy_target}/StageURL"
+        ).string_value
+
+
         ws_connect_disconnect_function.add_environment(
             key="CONNECTIONS_TABLE",
             value=connections_table.table_name
         )
         ws_connect_disconnect_function.add_environment(
             key="API_GATEWAY_URL",
-            value=websocket_stage.url
+            value=websocket_stage_url
         )
         ws_text_chat_function.add_environment(
             key="API_GATEWAY_URL",
-            value=websocket_stage.url
+            value=websocket_stage_url
         )
         connections_table.grant_read_write_data(
             grantee=ws_connect_disconnect_function
