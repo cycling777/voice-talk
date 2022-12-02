@@ -3,30 +3,34 @@ import os
 import aws_cdk as cdk
 from constructs import Construct
 # from aws_cdk.aws_apigatewayv2_authorizers_alpha import WebSocketLambdaAuthorizer
-from ..component.dynamodb_table_stack import DynamodbStack
-from ..component.python_lambda_stack import PythonLambdaStack
-from ..component.ws_api_gateway_stack import WebsocketApigatewayStack
+from ..components.dynamodb_table_stack import DynamodbStack
+from ..components.python_lambda_stack import PythonLambdaStack
+from ..components.ws_api_gateway_stack import WebsocketApigatewayStack
 
 
 class WebSocketApplicationStack(cdk.Stack):
-    def __init__(self, scope: Construct, id: str, component_dir_name: str, deploy_target: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, components_dir_name: str, deploy_target: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        config_file_names = self.node.try_get_context(deploy_target)["config_file_names"]
+
         # Call Stacks for artifacts in need
-        connection_table_stack = DynamodbStack(
+        connections_table_stack = DynamodbStack(
             self,
             id=f"WebsocketConnectionTable-{deploy_target}",
-            yaml_path=os.path.join(component_dir_name, "ws_connection_table.yml")
+            deploy_target=deploy_target,
+            yaml_path=os.path.join(components_dir_name, config_file_names["connections_table"])
         )
 
         websocket_function_stack = PythonLambdaStack(
             self,
             construct_id=f"WebsocketLambda-{deploy_target}",
-            yaml_path=os.path.join(component_dir_name, "ws_lambda.yml")
+            yaml_path=os.path.join(components_dir_name, config_file_names["websocket_function"]),
+            deploy_target=deploy_target,
         )
 
         # DynamoDB Table for websocket connections
-        connections_table = connection_table_stack.dynamodb_table
+        connections_table = connections_table_stack.dynamodb_table
         # print("CONNECTIONS_TABLE: {}".format(connections_table.table_name))
         # Python Lambda for websocket connections
         websocket_function = websocket_function_stack.lambda_function
@@ -64,7 +68,8 @@ class WebSocketApplicationStack(cdk.Stack):
         websocket_apigateway_stack = WebsocketApigatewayStack(
             self,
             construct_id=f"WebSocketApiGateway-{deploy_target}",
-            yaml_path=os.path.join(component_dir_name, "ws_apigateway.yml"),
+            yaml_path=os.path.join(components_dir_name, config_file_names["websocket_apigateway"]),
+            deploy_target=deploy_target,
             connect_function=websocket_function,
             disconnect_function=websocket_function,
             chat_function=websocket_function,

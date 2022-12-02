@@ -31,13 +31,9 @@ class DynamodbStack(cdk.NestedStack):
       type: string
 
     '''
-    def __init__(self, scope: Construct, id: str, yaml_path: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, yaml_path: str, deploy_target: str,**kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         # Get configuration
-        try:
-            deploy_target=self.node.try_get_context("deploy-target")
-        except AttributeError:
-            deploy_target="dev"
         config, capacity_config = ReadDynamodbTableConfig(yaml_path, deploy_target)
 
         # create a dynamodb table

@@ -13,19 +13,16 @@ class WebsocketApigatewayStack(cdk.NestedStack):
         scope: Construct,
         construct_id: str,
         yaml_path: str,
+        deploy_target: str,
         connect_function: PythonFunction,
         disconnect_function: PythonFunction,
         chat_function: PythonFunction,
         **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Get configuration
-        try:
-            deploy_target=self.node.try_get_context("deploy-target")
-        except AttributeError:
-            deploy_target="dev"
-        
+        # Get configuration        
         config = ReadApigatewayConfig(yaml_path, deploy_target)
+
         # websocker routing
         websocket_api = apigwv2alpha.WebSocketApi(
             self,

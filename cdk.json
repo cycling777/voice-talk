@@ -34,15 +34,27 @@
     "@aws-cdk/aws-events:eventsTargetQueueSameAccount": true,
     "@aws-cdk/aws-iam:standardizedServicePrincipals": true,
     "@aws-cdk/aws-ecs:disableExplicitDeploymentControllerForCircuitBreaker": true,
-    
-    "deploy-target": "dev",
     "LAMBDA_ROOT_PATH": "lambdas",
-    "dev": {
+    "general": {
       "ACCOUNT": "958152586967",
       "REGION": "us-east-1",
       "GITHUB_REPOSITORY": "IPI-k-watanabe/talking3",
       "GITHUB_BRANCH": "main",
       "CODESTAR_CONNECTION_ARN": "arn:aws:codestar-connections:us-east-1:958152586967:connection/c5c2b5da-4b6a-4c74-937f-6a73532c0b0a"
+    },
+    "test": {
+      "config_file_names": {
+        "connections_table": "ws_connection_table.yml",
+        "websocket_function": "ws_lambda.yml",
+        "websocket_apigateway": "ws_apigateway.yml"
+      }
+    },
+    "prod": {
+      "config_file_names": {
+        "connections_table": "ws_connection_table.yml",
+        "websocket_function": "ws_lambda.yml",
+        "websocket_apigateway": "ws_apigateway.yml"
+      }
     }
   }
 }

@@ -21,11 +21,12 @@ class PythonLambdaStack(cdk.NestedStack):
     timeout: int
     environment: dict
     '''
-    def __init__(self, scope:Construct, construct_id: str, yaml_path: str,**kwargs) -> None:
+
+    def __init__(self, scope: Construct, construct_id: str, yaml_path: str, deploy_target: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Get configuration
-        config = ReadPythonLamdbaConfig(yaml_path)
+        config = ReadPythonLamdbaConfig(yaml_path, deploy_target)
         config["entry"] = self.node.try_get_context("LAMBDA_ROOT_PATH")
         # print(f"lambda-config {config}")
         # Make Function
@@ -33,13 +34,15 @@ class PythonLambdaStack(cdk.NestedStack):
         self.lambda_function = lambda_function
 
 
-def ReadPythonLamdbaConfig(yaml_path: str) -> dict:
+def ReadPythonLamdbaConfig(yaml_path: str, deploy_target) -> dict:
     # Get configuration from yaml file
     with open(yaml_path, 'r') as file:
         row_config = yaml.safe_load(file)
-    
-    config={}
+
+    config = {}
     config["id"] = row_config["id"]
+    config["function_name"] = "{}-{}" .format(
+        row_config["function_name"], deploy_target)
     config["runtime"] = RUNTIMES[row_config["runtime"]]
     config["index"] = row_config["index"]
     config["handler"] = row_config["handler"]

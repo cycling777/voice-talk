@@ -1,0 +1,15 @@
+id: websocketConnectiontable
+table_name: TestForWebSocketConnectionsTable
+billing_mode: provisioned
+read_capacity:
+  min: 2
+  max: 5
+  target_utilization_percent: 75
+write_capacity:
+  min: 2
+  max: 5
+  target_utilization_percent: 75
+removal_policy: destroy
+partition_key:
+  name: connection_id
+  type: string
