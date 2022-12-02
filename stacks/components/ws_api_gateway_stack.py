@@ -53,11 +53,12 @@ class WebsocketApigatewayStack(cdk.NestedStack):
             self,
             id="WebsocketStage",
             web_socket_api=websocket_api,
-            stage_name=deploy_target, # dev/prod
+            stage_name=deploy_target, # testprod
             auto_deploy=True
         )
         
         self.websocket_api = websocket_api
+        self.websocket_stage = websocket_stage
 
 
 

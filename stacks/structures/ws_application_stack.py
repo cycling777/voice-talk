@@ -38,17 +38,8 @@ class WebSocketApplicationStack(cdk.Stack):
 
         # DynamoDB Table for websocket connections
         connections_table = connections_table_stack.dynamodb_table
-        # print("CONNECTIONS_TABLE: {}".format(connections_table.table_name))
-        # Python Lambda for websocket connections
         ws_connect_disconnect_function = ws_connect_disconnect_function_stack.lambda_function
         ws_text_chat_function = ws_text_chat_function_stack.lambda_function
-        ws_connect_disconnect_function.add_environment(
-            key="CONNECTIONS_TABLE",
-            value=connections_table.table_name
-        )
-
-        # grant permission from connections_table to ws_connect_disconnect_function in need
-        connections_table.grant_read_write_data(ws_connect_disconnect_function)
 
         # # settings for authorizer_function
         # authorizer_function = PythonFunction(
@@ -72,7 +63,7 @@ class WebSocketApplicationStack(cdk.Stack):
 
         # )
 
-        # call Stacks for network
+        # Call stack for apigateway
         websocket_apigateway_stack = WebsocketApigatewayStack(
             self,
             construct_id=f"WebSocketApiGateway-{deploy_target}",
@@ -85,3 +76,23 @@ class WebSocketApplicationStack(cdk.Stack):
 
         # API Gateway for the websocket client
         websocket_api = websocket_apigateway_stack.websocket_api
+        websocket_stage = websocket_apigateway_stack.websocket_stage
+
+
+        # Add connections, environment variables or grant permission for the instances
+        ws_connect_disconnect_function.add_environment(
+            key="CONNECTIONS_TABLE",
+            value=connections_table.table_name
+        )
+        ws_connect_disconnect_function.add_environment(
+            key="API_GATEWAY_URL",
+            value=websocket_stage.url
+        )
+        ws_text_chat_function.add_environment(
+            key="API_GATEWAY_URL",
+            value=websocket_stage.url
+        )
+        connections_table.grant_read_write_data(
+            grantee=ws_connect_disconnect_function
+        )
+
