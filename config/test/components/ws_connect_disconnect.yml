@@ -1,0 +1,9 @@
+id: WebsocketConnectDisconnectFunction
+function_name: WebsocketConnectDisconnectFunction
+runtime: python3.9
+index: connect_disconnect.py
+handler: lambda_handler
+architecture: x86
+memory_size: 512
+timeout: 30
+environment:

@@ -1,5 +1,5 @@
 id: websocketConnectiontable
-table_name: TestForWebSocketConnectionsTable
+table_name: WebSocketConnectionsTable
 billing_mode: provisioned
 read_capacity:
   min: 2

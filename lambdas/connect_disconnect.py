@@ -3,22 +3,23 @@ import os
 
 dynamodb = boto3.client("dynamodb")
 
-connections_table = os.getenv("CONNECTIONS_TABLE") # env var in Lambda function above.
+# env var in Lambda function above.
+connections_table = os.getenv("CONNECTIONS_TABLE")
 
-def handler(event):
+
+def lambda_handler(event, context):
     '''Managing the Connnectoin ID'''
     # event and context are provided from AWS Lambda invocations.
     status_code = 200
-    route = event["requestContext"]["routeKey"] # $connect, $disconnect or custom route key.
-    connection_id = event["requestContext"]["connectionId"] # Websocket connection ID.
+    # $connect, $disconnect or custom route key.
+    route = event["requestContext"]["routeKey"]
+    # Websocket connection ID.
+    connection_id = event["requestContext"]["connectionId"]
 
     if route == "$connect":
         connect_device(connection_id)
     elif route == "$disconnect":
         disconnect_device(connection_id)
-    elif route == "chat":
-        # chat message implementation.
-        print("Connecting Now...")
     else:
         # Unknown route key
         status_code = 400

@@ -16,7 +16,7 @@ class WebsocketApigatewayStack(cdk.NestedStack):
         deploy_target: str,
         connect_function: PythonFunction,
         disconnect_function: PythonFunction,
-        chat_function: PythonFunction,
+        text_chat_function: PythonFunction,
         **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -42,10 +42,10 @@ class WebsocketApigatewayStack(cdk.NestedStack):
             )
         )
         websocket_api.add_route(
-            route_key="chat",
+            route_key="text_chat",
             integration=WebSocketLambdaIntegration(
-                id="ChatIntegration",
-                handler=chat_function
+                id="TextChatIntegration",
+                handler=text_chat_function
             )
         )
 

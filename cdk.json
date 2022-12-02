@@ -45,14 +45,16 @@
     "test": {
       "config_file_names": {
         "connections_table": "ws_connection_table.yml",
-        "websocket_function": "ws_lambda.yml",
+        "ws_connect_disconnect_function": "ws_connect_disconnect.yml",
+        "ws_text_chat_function": "ws_text_chat.yml",
         "websocket_apigateway": "ws_apigateway.yml"
       }
     },
     "prod": {
       "config_file_names": {
         "connections_table": "ws_connection_table.yml",
-        "websocket_function": "ws_lambda.yml",
+        "ws_connect_disconnect_function": "ws_connect_disconnect.yml",
+        "ws_text_chat_function": "ws_text_chat.yml",
         "websocket_apigateway": "ws_apigateway.yml"
       }
     }
