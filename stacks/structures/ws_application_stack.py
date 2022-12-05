@@ -1,10 +1,9 @@
 import yaml
 import os
 import aws_cdk as cdk
-import aws_cdk.aws_ssm as ssm
 from constructs import Construct
 # from aws_cdk.aws_apigatewayv2_authorizers_alpha import WebSocketLambdaAuthorizer
-from aws_cdk.aws_lambda_python_alpha import PythonFunction
+from aws_cdk.aws_iam import Role, ServicePrincipal, ManagedPolicy
 from ..components.dynamodb_table_stack import DynamodbStack
 from ..components.python_lambda_stack import PythonLambdaStack
 from ..components.ws_api_gateway_stack import WebsocketApigatewayStack
@@ -16,7 +15,7 @@ class WebSocketApplicationStack(cdk.Stack):
 
         config_file_names = self.node.try_get_context(deploy_target)["config_file_names"]
 
-        # Call Stacks for artifacts except apigateway
+        # Make DynamodbStack
         connections_table_stack = DynamodbStack(
             self,
             id=f"WebsocketConnectionTable-{deploy_target}",
@@ -24,11 +23,30 @@ class WebSocketApplicationStack(cdk.Stack):
             yaml_path=os.path.join(components_dir_name, config_file_names["connections_table"])
         )
 
+        # Make IAM Role for lambda
+        lambda_role = Role(
+            self,
+            id="Websocket-fuction-role",
+            assumed_by=ServicePrincipal(service="lambda.amazonaws.com"),
+            managed_policies=[
+                ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
+                ManagedPolicy.from_aws_managed_policy_name("AmazonSSMReadOnlyAccess")
+            ]
+        )
+
+        # Make environment variables for Lambda
+        lambda_env_vars = {
+            "DEPLOY_TARGET": deploy_target,
+        }
+        
+        # Make Lambda stacks
         ws_connect_disconnect_function_stack = PythonLambdaStack(
             self,
             construct_id=f"WebsocketConnectDisconnectLambda-{deploy_target}",
             yaml_path=os.path.join(components_dir_name, config_file_names["ws_connect_disconnect_function"]),
             deploy_target=deploy_target,
+            role=lambda_role,
+            environment=lambda_env_vars
         )
 
         ws_text_chat_function_stack = PythonLambdaStack(
@@ -36,6 +54,8 @@ class WebSocketApplicationStack(cdk.Stack):
             construct_id=f"WebsocketTextChatLambda-{deploy_target}",
             yaml_path=os.path.join(components_dir_name, config_file_names["ws_text_chat_function"]),
             deploy_target=deploy_target,
+            role=lambda_role,
+            environment=lambda_env_vars
         )
 
         connections_table = connections_table_stack.dynamodb_table
@@ -78,7 +98,7 @@ class WebSocketApplicationStack(cdk.Stack):
         # API Gateway for the websocket client
         websocket_api = websocket_apigateway_stack.websocket_api
 
-        # Add connections, environment variables or grant permission for the instances
+        # Add environment variables or grant permission for relationships between resources
         ws_connect_disconnect_function.add_environment(
             key="CONNECTIONS_TABLE",
             value=connections_table.table_name
@@ -86,4 +106,3 @@ class WebSocketApplicationStack(cdk.Stack):
         connections_table.grant_read_write_data(
             grantee=ws_connect_disconnect_function
         )
-

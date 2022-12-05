@@ -1,6 +1,7 @@
 import yaml
 import aws_cdk as cdk
 from constructs import Construct
+from aws_cdk.aws_iam import Role
 from aws_cdk.aws_lambda_python_alpha import PythonFunction
 
 from utils.cdk_lambda import RUNTIMES, LAMBDA_ARCHITECTURE
@@ -22,15 +23,25 @@ class PythonLambdaStack(cdk.NestedStack):
     environment: dict
     '''
 
-    def __init__(self, scope: Construct, construct_id: str, yaml_path: str, deploy_target: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, yaml_path: str, deploy_target: str, role: Role, environment: dict[str:str], **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Get configuration
         config = ReadPythonLamdbaConfig(yaml_path, deploy_target)
         config["entry"] = self.node.try_get_context("LAMBDA_ROOT_PATH")
+        config["role"] = role
+        config["environment"] = environment
+        
+                # Create Lambda function
         # print(f"lambda-config {config}")
         # Make Function
         lambda_function = PythonFunction(self, **config)
+
+        # Add environment and permissions
+        lambda_function.add_environment(
+            key="DEPLOY_TARGET",
+            value=deploy_target
+        )
         self.lambda_function = lambda_function
 
 
