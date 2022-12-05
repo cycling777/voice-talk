@@ -82,25 +82,10 @@ class WebSocketApplicationStack(cdk.Stack):
         websocket_api.grant_manage_connections(ws_connect_disconnect_function)
         websocket_api.grant_manage_connections(ws_text_chat_function)
 
-        # Get SSM Values
-        websocket_stage_url = ssm.StringParameter.from_string_parameter_name(
-            self,
-            id=f"WebsocketStageURL-{deploy_target}",
-            string_parameter_name=f"/WebsocketAPI/{deploy_target}/StageURL"
-        ).string_value
-
 
         ws_connect_disconnect_function.add_environment(
             key="CONNECTIONS_TABLE",
             value=connections_table.table_name
-        )
-        ws_connect_disconnect_function.add_environment(
-            key="API_GATEWAY_URL",
-            value=websocket_stage_url
-        )
-        ws_text_chat_function.add_environment(
-            key="API_GATEWAY_URL",
-            value=websocket_stage_url
         )
         connections_table.grant_read_write_data(
             grantee=ws_connect_disconnect_function
