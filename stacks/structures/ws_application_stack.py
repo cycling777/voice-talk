@@ -79,10 +79,6 @@ class WebSocketApplicationStack(cdk.Stack):
         websocket_api = websocket_apigateway_stack.websocket_api
 
         # Add connections, environment variables or grant permission for the instances
-        websocket_api.grant_manage_connections(ws_connect_disconnect_function)
-        websocket_api.grant_manage_connections(ws_text_chat_function)
-
-
         ws_connect_disconnect_function.add_environment(
             key="CONNECTIONS_TABLE",
             value=connections_table.table_name
