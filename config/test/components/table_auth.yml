@@ -1,0 +1,15 @@
+id: AuthTable
+table_name: AuthTable
+billing_mode: provisioned
+read_capacity:
+  min: 2
+  max: 5
+  target_utilization_percent: 75
+write_capacity:
+  min: 2
+  max: 5
+  target_utilization_percent: 75
+removal_policy: destroy
+partition_key:
+  name: user_id
+  type: string

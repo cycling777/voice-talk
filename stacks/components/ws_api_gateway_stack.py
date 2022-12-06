@@ -24,24 +24,35 @@ class WebsocketApigatewayStack(cdk.NestedStack):
         # Get configuration
         config = ReadApigatewayConfig(yaml_path, deploy_target)
 
-        # websocker routing
-        websocket_api = apigwv2alpha.WebSocketApi(
-            self,
-            **config,
-            connect_route_options=apigwv2alpha.WebSocketRouteOptions(
+        if kwargs.get("authorizer"):
+            authorizer = kwargs.get("authorizer")
+            connect_route_options = apigwv2alpha.WebSocketRouteOptions(
                 integration=WebSocketLambdaIntegration(
                     id="ConnectIntegration",
                     handler=connect_function
                 ),
-                # authorizer=authorizer
-            ),
+                authorizer=authorizer
+            )
+        else:
+            connect_route_options=apigwv2alpha.WebSocketRouteOptions(
+                integration=WebSocketLambdaIntegration(
+                    id="ConnectIntegration",
+                    handler=connect_function
+                )
+            )
+        # websocker routing
+        websocket_api = apigwv2alpha.WebSocketApi(
+            self,
+            **config,
+            connect_route_options=connect_route_options,
             disconnect_route_options=apigwv2alpha.WebSocketRouteOptions(
                 integration=WebSocketLambdaIntegration(
                     id="DisconnectIntegration",
                     handler=disconnect_function
-                ),
+                )
             )
         )
+
         websocket_api.add_route(
             route_key="text_chat",
             integration=WebSocketLambdaIntegration(

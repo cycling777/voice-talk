@@ -1,4 +1,4 @@
-id: websocketConnectiontable
+id: WebsocketConnectiontable
 table_name: WebSocketConnectionsTable
 billing_mode: provisioned
 read_capacity:

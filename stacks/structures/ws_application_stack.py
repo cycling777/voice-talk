@@ -13,17 +13,32 @@ class WebSocketApplicationStack(cdk.Stack):
     def __init__(self, scope: Construct, id: str, components_dir_name: str, deploy_target: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        # Get config
         config_file_names = self.node.try_get_context(deploy_target)["config_file_names"]
 
-        # Make DynamodbStack
-        connections_table_stack = DynamodbStack(
+        # Create Dynamodb stacks
+        ws_connections_table_stack = DynamodbStack(
             self,
             id=f"WebsocketConnectionTable-{deploy_target}",
             deploy_target=deploy_target,
-            yaml_path=os.path.join(components_dir_name, config_file_names["connections_table"])
+            yaml_path=os.path.join(components_dir_name, config_file_names["ws_connections_table"])
         )
 
-        # Make IAM Role for lambda
+        auth_table_stack = DynamodbStack(
+            self,
+            id=f"AuthTable-{deploy_target}",
+            deploy_target=deploy_target,
+            yaml_path=os.path.join(components_dir_name, config_file_names["auth_table"])
+        )
+
+        dialogue_table_stack = DynamodbStack(
+            self,
+            id=f"DialoguesTable-{deploy_target}",
+            deploy_target=deploy_target,
+            yaml_path=os.path.join(components_dir_name, config_file_names["dialogues_table"])
+        )
+
+        # Create IAM Role for lambda
         lambda_role = Role(
             self,
             id="Websocket-fuction-role",
@@ -34,12 +49,12 @@ class WebSocketApplicationStack(cdk.Stack):
             ]
         )
 
-        # Make environment variables for Lambda
+        # Create environment variables for Lambda
         lambda_env_vars = {
             "DEPLOY_TARGET": deploy_target,
         }
         
-        # Make Lambda stacks
+        # Create lambda stacks
         ws_connect_disconnect_function_stack = PythonLambdaStack(
             self,
             construct_id=f"WebsocketConnectDisconnectLambda-{deploy_target}",
@@ -49,32 +64,35 @@ class WebSocketApplicationStack(cdk.Stack):
             environment=lambda_env_vars
         )
 
-        ws_text_chat_function_stack = PythonLambdaStack(
+        text_chat_function_stack = PythonLambdaStack(
             self,
-            construct_id=f"WebsocketTextChatLambda-{deploy_target}",
-            yaml_path=os.path.join(components_dir_name, config_file_names["ws_text_chat_function"]),
+            construct_id=f"TextChatLambda-{deploy_target}",
+            yaml_path=os.path.join(components_dir_name, config_file_names["text_chat_function"]),
             deploy_target=deploy_target,
             role=lambda_role,
             environment=lambda_env_vars
         )
 
-        connections_table = connections_table_stack.dynamodb_table
+        authorizer_function_stack = PythonLambdaStack(
+            self,
+            construct_id=f"AthorizerLambda-{deploy_target}",
+            yaml_path=os.path.join(components_dir_name, config_file_names["authorizer_function"]),
+            deploy_target=deploy_target,
+            role=lambda_role,
+            environment=lambda_env_vars
+        )
+
+        # Create table Instances
+        ws_connections_table = ws_connections_table_stack.dynamodb_table
+        auth_table = auth_table_stack.dynamodb_table
+        dialogue_table = dialogue_table_stack.dynamodb_table
+
+        # Create function Instances
         ws_connect_disconnect_function = ws_connect_disconnect_function_stack.lambda_function
-        ws_text_chat_function = ws_text_chat_function_stack.lambda_function
+        text_chat_function = text_chat_function_stack.lambda_function
+        authorizer_function = authorizer_function_stack.lambda_function
 
-        # # settings for authorizer_function
-        # authorizer_function = PythonFunction(
-        #     self, "authorizer", #Resource name
-        #     runtime=Runtime.PYTHON_3_9, #Runtime version
-        #     handler="authorizer.lambda_handler", #Execution handler in the code directory
-        #     architecture=Architecture.X86, #Type of processor architecture
-        #     memory_size=512, #Memory size
-        #     timeout=cdk.Duration.seconds(30),
-        #     code=Code.from_asset(lambda_root_path), #Directory from the root
-        #     environment={}
-        # )
-
-        # # create websocket authorizer
+        # Create authorizer Instance
         # authorizer = WebSocketLambdaAuthorizer(
         #     id="WebSocketAuthorizer",
         #     handler=authorizer_function,
@@ -84,7 +102,7 @@ class WebSocketApplicationStack(cdk.Stack):
 
         # )
 
-        # Call stack for apigateway
+        # Create apigateway stack
         websocket_apigateway_stack = WebsocketApigatewayStack(
             self,
             construct_id=f"WebSocketApiGateway-{deploy_target}",
@@ -92,17 +110,27 @@ class WebSocketApplicationStack(cdk.Stack):
             deploy_target=deploy_target,
             connect_function=ws_connect_disconnect_function,
             disconnect_function=ws_connect_disconnect_function,
-            text_chat_function=ws_text_chat_function,
+            text_chat_function=text_chat_function,
         )
 
-        # API Gateway for the websocket client
+        # Create API Gateway for the websocket client
         websocket_api = websocket_apigateway_stack.websocket_api
 
-        # Add environment variables or grant permission for relationships between resources
+        # Add environment variables
         ws_connect_disconnect_function.add_environment(
             key="CONNECTIONS_TABLE",
-            value=connections_table.table_name
+            value=ws_connections_table.table_name
         )
-        connections_table.grant_read_write_data(
-            grantee=ws_connect_disconnect_function
+        text_chat_function.add_environment(
+            key="DIALOGUES_TABLE",
+            value=dialogue_table.table_name
         )
+        authorizer_function.add_environment(
+            key="AUTH_TABLE",
+            value=auth_table.table_name
+        )
+
+        # Add grant permission for relationships between resources
+        ws_connections_table.grant_read_write_data(grantee=ws_connect_disconnect_function)
+        dialogue_table.grant_read_write_data(grantee=text_chat_function)
+        auth_table.grant_read_write_data(grantee=authorizer_function)

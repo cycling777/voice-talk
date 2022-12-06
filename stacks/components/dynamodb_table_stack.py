@@ -5,7 +5,7 @@ from aws_cdk import aws_dynamodb
 
 from utils.cdk_dynamodb import BILLINGMODE, REMOVALPOLICY, ATTRIBUTETYPE
 
-class DynamodbStack(cdk.NestedStack):
+class DynamodbStack(cdk.Stack):
     '''
     Creates a Dynamodb Stack from Config YAML file
     Please call this Stack on PipelineStack or app.py
@@ -82,6 +82,7 @@ def ReadDynamodbTableConfig(yaml_path: str, deploy_target: str) -> dict:
         pass
         # print("No Sort Key with {}".format(row_config["table_name"]))
     # print("Config: {}".format(config))
+    
     # Set Capacity Config
     capacity_config={}
     capacity_config["read_capacity"] = row_config["read_capacity"]

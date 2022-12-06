@@ -44,10 +44,13 @@
     },
     "test": {
       "config_file_names": {
-        "connections_table": "ws_connection_table.yml",
-        "ws_connect_disconnect_function": "ws_connect_disconnect.yml",
-        "ws_text_chat_function": "ws_text_chat.yml",
-        "websocket_apigateway": "ws_apigateway.yml"
+        "auth_table": "table_auth.yml",
+        "dialogues_table": "table_dialogues.yml",
+        "ws_connections_table": "table_ws_connections.yml",
+        "ws_connect_disconnect_function": "function_ws_connect_disconnect.yml",
+        "text_chat_function": "function_ws_text_chat.yml",
+        "authorizer_function": "function_authorizer.yml",
+        "websocket_apigateway": "apigateway_ws.yml"
       }
     },
     "prod": {
