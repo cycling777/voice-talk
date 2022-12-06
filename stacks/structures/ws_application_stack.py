@@ -2,6 +2,7 @@ import yaml
 import os
 import aws_cdk as cdk
 from constructs import Construct
+from aws_cdk.aws_apigatewayv2_integrations_alpha import WebSocketLambdaIntegration
 # from aws_cdk.aws_apigatewayv2_authorizers_alpha import WebSocketLambdaAuthorizer
 from aws_cdk.aws_iam import Role, ServicePrincipal, ManagedPolicy
 from ..components.dynamodb_table_stack import DynamodbStack
@@ -109,12 +110,21 @@ class WebSocketApplicationStack(cdk.Stack):
             yaml_path=os.path.join(components_dir_name, config_file_names["websocket_apigateway"]),
             deploy_target=deploy_target,
             connect_function=ws_connect_disconnect_function,
-            disconnect_function=ws_connect_disconnect_function,
-            text_chat_function=text_chat_function,
+            disconnect_function=ws_connect_disconnect_function
         )
 
         # Create API Gateway for the websocket client
         websocket_api = websocket_apigateway_stack.websocket_api
+        websocket_stage = websocket_apigateway_stack.websocket_stage
+
+        # Add custom route to apigateway
+        websocket_api.add_route(
+            route_key="text_chat",
+            integration=WebSocketLambdaIntegration(
+                id="TextChatIntegration",
+                handler=text_chat_function
+            )
+        )
 
         # Add environment variables
         ws_connect_disconnect_function.add_environment(
@@ -131,6 +141,7 @@ class WebSocketApplicationStack(cdk.Stack):
         )
 
         # Add grant permission for relationships between resources
+        websocket_stage.grant_management_api_access(identity=text_chat_function)
         ws_connections_table.grant_read_write_data(grantee=ws_connect_disconnect_function)
         dialogue_table.grant_read_write_data(grantee=text_chat_function)
         auth_table.grant_read_write_data(grantee=authorizer_function)

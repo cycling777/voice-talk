@@ -17,7 +17,6 @@ class WebsocketApigatewayStack(cdk.NestedStack):
             deploy_target: str,
             connect_function: PythonFunction,
             disconnect_function: PythonFunction,
-            text_chat_function: PythonFunction,
             **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -53,14 +52,6 @@ class WebsocketApigatewayStack(cdk.NestedStack):
             )
         )
 
-        websocket_api.add_route(
-            route_key="text_chat",
-            integration=WebSocketLambdaIntegration(
-                id="TextChatIntegration",
-                handler=text_chat_function
-            )
-        )
-
         websocket_stage = apigwv2alpha.WebSocketStage(
             self,
             id="WebsocketStage",
@@ -70,6 +61,7 @@ class WebsocketApigatewayStack(cdk.NestedStack):
         )
 
         self.websocket_api = websocket_api
+        self.websocket_stage = websocket_stage
 
         ssm.StringParameter(
             self,

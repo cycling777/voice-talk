@@ -3,16 +3,21 @@ import json
 import boto3
 
 
-API_GATEWAY_URL =  os.getenv("API_GATEWAY_URL")
 REGION = os.getenv("AWS_REGION")
+DEPLOY_TARGET = os.getenv("DEPLOY_TARGET")
+
+ssm = boto3.client('ssm', REGION)
+STAGE_URL = ssm.get_parameter(Name=f'/WebsocketAPI/{DEPLOY_TARGET}/StageURL', WithDecryption=True)["Parameter"]["Value"]
+API_GATEWAY_URL = "https://" + STAGE_URL[6:]
 
 api_gateway_connection = boto3.client(
-    service_name="websocketapigateway",
-    region_name=REGION,
-    endpoint_url=API_GATEWAY_URL
+    "apigatewaymanagementapi",
+    endpoint_url=API_GATEWAY_URL, # provided by the WebSocketStage stack.
+    region_name=REGION
 )
 
 def lambda_handler(event, context):
+    
     '''Managing the Connnectoin ID'''
     # event and context are provided from AWS Lambda invocations.
     status_code = 200
@@ -30,6 +35,7 @@ def lambda_handler(event, context):
         }
 
     # get input stream data
+    print(event)
     body = json.loads(event["body"])
     message = body["message"]
 
