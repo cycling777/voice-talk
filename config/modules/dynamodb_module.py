@@ -46,7 +46,7 @@ class ReadDynamodbTableConfig:
             name=row_config["partition_key"]["name"],
             type=ATTRIBUTETYPE[row_config["partition_key"]["type"]]
         )
-        if config.get("sort_key"):
+        if row_config.get("sort_key"):
             config["sort_key"] = aws_dynamodb.Attribute(
                 name=row_config["sort_key"]["name"],
                 type=ATTRIBUTETYPE[row_config["sort_key"]["type"]]
