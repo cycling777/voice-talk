@@ -1,7 +1,7 @@
-id: WebsocketTextChatFunction
-function_name: WebsocketTextChatFunction
+id: WSAuthorizerFunction
+function_name: WSAuthorizerFunction
 runtime: python3.9
-index: text_chat.py
+index: authorizer.py
 handler: lambda_handler
 architecture: x86
 memory_size: 512

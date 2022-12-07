@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import aws_cdk as cdk
 
-from stacks.websocket_pipeline_stack import WebsocketPipelineStack
+from pipeline.pipeline_stack import WebsocketPipelineStack
 
 
 app = cdk.App()

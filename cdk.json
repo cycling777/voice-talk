@@ -34,7 +34,7 @@
     "@aws-cdk/aws-events:eventsTargetQueueSameAccount": true,
     "@aws-cdk/aws-iam:standardizedServicePrincipals": true,
     "@aws-cdk/aws-ecs:disableExplicitDeploymentControllerForCircuitBreaker": true,
-    "LAMBDA_ROOT_PATH": "lambdas",
+    "LAMBDA_ROOT_PATH": "websocketApp/lambdas",
     "general": {
       "ACCOUNT": "958152586967",
       "REGION": "us-east-1",
@@ -44,13 +44,19 @@
     },
     "test": {
       "config_file_names": {
-        "auth_table": "table_auth.yml",
-        "dialogues_table": "table_dialogues.yml",
-        "ws_connections_table": "table_ws_connections.yml",
-        "ws_connect_disconnect_function": "function_ws_connect_disconnect.yml",
-        "text_chat_function": "function_ws_text_chat.yml",
-        "authorizer_function": "function_authorizer.yml",
-        "websocket_apigateway": "apigateway_ws.yml"
+          "dynamodb": {
+            "auth_table": "table_auth.yml",
+            "dialogues_table": "table_dialogues.yml",
+            "ws_connections_table": "table_ws_connections.yml"
+          },
+          "lambda": {
+            "ws_connect_disconnect_function": "function_ws_connect_disconnect.yml",
+            "text_chat_function": "function_ws_text_chat.yml",
+            "authorizer_function": "function_authorizer.yml"
+          },
+          "apigateway": {
+            "websocket_apigateway": "apigateway_ws.yml"
+          }
       }
     },
     "prod": {

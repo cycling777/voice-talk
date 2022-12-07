@@ -1,5 +1,5 @@
-id: WebsocketConnectDisconnectFunction
-function_name: WebsocketConnectDisconnectFunction
+id: WSConnectDisconnectFunction
+function_name: WSConnectDisconnectFunction
 runtime: python3.9
 index: connect_disconnect.py
 handler: lambda_handler
