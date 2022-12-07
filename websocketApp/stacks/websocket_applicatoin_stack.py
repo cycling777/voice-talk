@@ -1,6 +1,7 @@
 import aws_cdk.aws_ssm as ssm
 from constructs import Construct
 from aws_cdk import aws_apigatewayv2_alpha as apigwv2alpha
+from aws_cdk.aws_apigatewayv2_integrations_alpha import WebSocketLambdaIntegration
 
 from .lambda_stack import LambdaStack
 from config.modules.apigatewayv2_alpha_ws_module import ReadApigatewayConfig
@@ -27,6 +28,17 @@ class WebsocketApplicationStack(LambdaStack):
         # Create Instances
         websocket_api = apigwv2alpha.WebSocketApi(
             self, **websocket_apigateway_config.config)
+        
+        # Add Custom route
+    
+        # Add custom route to apigateway
+        websocket_api.add_route(
+            route_key="text_chat",
+            integration=WebSocketLambdaIntegration(
+                id="TextChatIntegration",
+                handler=self.lambda_function["text_chat_function"],
+            )
+        )
 
         websocket_stage = apigwv2alpha.WebSocketStage(
             self,
@@ -35,6 +47,9 @@ class WebsocketApplicationStack(LambdaStack):
             stage_name=deploy_target,
             auto_deploy=True
         )
+
+        # Add grant to lambda function
+        websocket_stage.grant_management_api_access(self.lambda_function["text_chat_function"])
 
         # Return Insatnces
         self.apigateway = {

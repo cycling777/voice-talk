@@ -15,7 +15,6 @@ class ApplicationStage(cdk.Stage):
             self, f'WebsocketApplicationStack-{deploy_target}', deploy_target)
         
         # Add grant for each resource
-        websocket_applicatoin_stack.apigateway["stage"].grant_management_api_access(identity=websocket_applicatoin_stack.lambda_function["text_chat_function"])
         db_stack.dynamodb["ws_connections_table"].grant_read_write_data(grantee=websocket_applicatoin_stack.lambda_function["ws_connect_disconnect_function"])
         db_stack.dynamodb["dialogue_table"].grant_read_write_data(grantee=websocket_applicatoin_stack.lambda_function["text_chat_function"])
         db_stack.dynamodb["auth_table"].grant_read_write_data(grantee=websocket_applicatoin_stack.lambda_function["authorizer_function"])

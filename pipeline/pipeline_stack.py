@@ -15,8 +15,6 @@ class WebsocketPipelineStack(cdk.Stack):
 
         # Get Environment variables for dev stage
         config = self.node.try_get_context("general")
-        dev_config = self.node.try_get_context("dev")
-        prod_config = self.node.try_get_context("prod")
 
         if config is None:
             raise ValueError(
