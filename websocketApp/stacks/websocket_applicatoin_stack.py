@@ -30,15 +30,27 @@ class WebsocketApplicationStack(LambdaStack):
             self, **websocket_apigateway_config.config)
         
         # Add Custom route
-    
-        # Add custom route to apigateway
-        websocket_api.add_route(
+        apigwv2alpha.WebSocketRoute(self, "TextChatRoute",
             route_key="text_chat",
             integration=WebSocketLambdaIntegration(
                 id="TextChatIntegration",
                 handler=self.lambda_function["text_chat_function"],
-            )
+            ),
+            web_socket_api=websocket_api,
+
+            # the properties below are optional
+            api_key_required=False,
+            # authorizer=web_socket_route_authorizer
         )
+    
+        # Add custom route to apigateway
+        # websocket_api.add_route(
+        #     route_key="text_chat",
+        #     integration=WebSocketLambdaIntegration(
+        #         id="TextChatIntegration",
+        #         handler=self.lambda_function["text_chat_function"],
+        #     )
+        # )
 
         websocket_stage = apigwv2alpha.WebSocketStage(
             self,

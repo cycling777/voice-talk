@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Web Speech API</title>
+</head>
+
+<body>
+  <h2>Web Speech API</h2>
+  <button id="start_btn">start</button>
+  <button id="stop_btn">stop</button>
+  <button id="websocket_send_btn">ws send</button>
+  <button id="websocket_disconnect_btn">ws disconnect</button>
+  <small id="status"></small>
+  <h3>Recognition Result</h3>
+  <h4>Progress</h4>
+  <textarea id="show_progress" cols="100" rows="10"></textarea>
+  <h4>Results</h4>
+  <div class="my-container">
+    <div id="voice_input" class="input-text" style="width:calc(100%/2);">Input text</div>
+    <div id="ws_output"  class="output-text" style="width:calc(100%/2);">Output text</div>
+  </div>
+</body>
+<style type="text/css">
+  .my-container {
+    display: flex;
+    background: #ccc;
+  }
+
+  .input-text {
+    background-color: rgb(170, 240, 180);
+  }
+
+  .output-text {
+    background-color: rgb(169, 151, 253);
+  }
+</style>
+<script>
+  // Declare webkitSpeechRecognition
+  window.SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
+  var recognition = new webkitSpeechRecognition();
+
+  // Web Speech API Configuration
+  // Language
+  recognition.lang = 'ja';
+  // Show Progress
+  recognition.interimResults = true;
+  // Continuous recognition
+  recognition.continuous = true;
+
+  // Const
+  const start_btn = document.getElementById('start_btn');
+  const stop_btn = document.getElementById('stop_btn');
+  const show_progress = document.getElementById('show_progress')
+  const voice_input = document.getElementById('voice_input');
+  const ws_output = document.getElementById('ws_output');
+  const websocket_send_btn = document.getElementById('websocket_send_btn');
+  const websocket_disconnect_btn = document.getElementById('websocket_disconnect_btn');
+  var exampleSocket = new WebSocket("wss://1zcmzybg80.execute-api.us-east-1.amazonaws.com/test");
+
+  recognition.onsoundstart = function () {
+    document.getElementById('status').innerHTML = "Recognizing";
+  };
+  recognition.onnomatch = function () {
+    document.getElementById('status').innerHTML = "Try again";
+  };
+  recognition.onerror = function () {
+    document.getElementById('status').innerHTML = "ERROR";
+  };
+  recognition.onsoundend = function () {
+    document.getElementById('status').innerHTML = "Stopped";
+  };
+
+  start_btn.addEventListener('click', function () {
+    // Start recognition
+    show_progress.innerHTML = '';
+    recognition.start();
+    this.disabled = true;
+    stop_btn.disabled = false;
+  });
+
+  stop_btn.addEventListener('click', function () {
+    // Stop recognition
+    recognition.stop();
+    this.disabled = true;
+    start_btn.disabled = false;
+    show_progress.innerHTML = '';
+  });
+
+  websocket_send_btn.addEventListener('click', function () {
+    // WebSocket send message
+    exampleSocket.send('{"action": "text_chat", "message": "hello"}');
+    exampleSocket.onmessage = function (event) {
+      console.log(event.data);
+    }
+  });
+
+  websocket_disconnect_btn.addEventListener('click', function () {
+    // WebSocket disconnection 
+    exampleSocket.close();
+  });
+
+  recognition.onresult = function (event) {
+    var results = event.results;
+    console.log(results);
+    for (var i = event.resultIndex; i < results.length; i++) {
+      if (results[i].isFinal) {
+        voice_input.innerHTML += '<div>' + results[i][0].transcript + '</div>';
+        recognition.stop();
+        stop_btn.disabled = true;
+        start_btn.disabled = false;
+        text = `{"action": "text_chat", "message": "${results[i][0].transcript}"}`;
+        console.log(text);
+        exampleSocket.send(text);
+        exampleSocket.onmessage = function (event) {
+          console.log(event.data);
+          returnData = JSON.parse(event.data);
+          console.log(returnData.message);
+          if (returnData.status_code === 200) {
+            ws_output.innerHTML += '<div>' + returnData.message + '</div>';
+          }
+        }
+
+      } else {
+        show_progress.innerHTML = show_progress.innerHTML + results[i][0].transcript + "<br>";
+      }
+    }
+  }
+</script>
+
+</html>
