@@ -10,9 +10,9 @@ class ApplicationStage(cdk.Stage):
 
         # Call structure stacks
         db_stack = DynamodbStack(
-            self, f'DynamodbStack-{deploy_target}', deploy_target)
+            self, 'DynamodbStack', deploy_target)
         websocket_applicatoin_stack = WebsocketApplicationStack(
-            self, f'WebsocketApplicationStack-{deploy_target}', deploy_target)
+            self, 'WebsocketApplicationStack', deploy_target)
 
         # Add environment variables for lambda function
         websocket_applicatoin_stack.lambda_function["ws_connect_disconnect_function"].add_environment(
