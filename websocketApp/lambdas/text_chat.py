@@ -1,6 +1,11 @@
 import os
 import json
 import boto3
+import logging
+from botocore.exceptions import ClientError
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 
 REGION = os.getenv("AWS_REGION")
@@ -26,26 +31,33 @@ def lambda_handler(event, context):
     # Websocket connection ID.
     connection_id = event["requestContext"]["connectionId"]
 
-    if route != "text_chat":
-        # Unknown route key
-        status_code = 400
-        return {
-            "statusCode": status_code,
-            "message": "route key is not correct"
-        }
-
     # get input stream data
-    print(event)
+    logger.info(event)
     body = json.loads(event["body"])
     message = body["message"]
 
     # make chatting answer bellow
+    try:
+        api_gateway_connection.get_connection(ConnectionId=connection_id)
+    except ClientError:
+        logger.exception(
+            "Couldn't establish connection %s.", connection_id)
+        status_code = 503
 
-    if api_gateway_connection.get_connection(ConnectionId=connection_id):
+    try:
         api_gateway_connection.post_to_connection(
             ConnectionId=connection_id,
             Data=json.dumps({
-                "status_code": 200,
+                "statusCode": status_code,
                 "message": message
             })
         )
+    except APIGWPostConnectionError("Couldn't post to connection from apigateway") as e:
+        logger.exception(e)
+        status_code = 504
+    return {
+        "statusCode": status_code
+    }
+
+class APIGWPostConnectionError(Exception):
+    pass

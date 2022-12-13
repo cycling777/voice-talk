@@ -57,7 +57,7 @@
   const ws_output = document.getElementById('ws_output');
   const websocket_send_btn = document.getElementById('websocket_send_btn');
   const websocket_disconnect_btn = document.getElementById('websocket_disconnect_btn');
-  var exampleSocket = new WebSocket("wss://1zcmzybg80.execute-api.us-east-1.amazonaws.com/test");
+  var exampleSocket = new WebSocket("wss://2iasf2mo96.execute-api.us-east-1.amazonaws.com/test");
 
   recognition.onsoundstart = function () {
     document.getElementById('status').innerHTML = "Recognizing";
@@ -117,7 +117,7 @@
           console.log(event.data);
           returnData = JSON.parse(event.data);
           console.log(returnData.message);
-          if (returnData.status_code === 200) {
+          if (returnData.statusCode === 200) {
             ws_output.innerHTML += '<div>' + returnData.message + '</div>';
           }
         }
