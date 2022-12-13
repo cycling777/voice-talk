@@ -2,10 +2,12 @@ import yaml
 from constructs import Construct
 import aws_cdk as cdk
 import aws_cdk.aws_iam as iam
+from aws_cdk.aws_lambda import Code, LayerVersion
 from aws_cdk.aws_iam import Role, ServicePrincipal, ManagedPolicy
 from aws_cdk.aws_lambda_python_alpha import PythonFunction
 
 from config.modules.pyhton_alpha_pythonfunction_module import ReadPythonLamdbaConfig
+from utils.cdk_lambda import RUNTIMES, LAMBDA_ARCHITECTURE
 
 
 class LambdaStack(cdk.Stack):
@@ -75,8 +77,22 @@ class LambdaStack(cdk.Stack):
             self, **voice_chat_function_config.config)
         authorizer_function = PythonFunction(
             self, **authorizer_function_config.config)
+        
+        # Create Lambda Layers
+        open_ai_layer = LayerVersion(self,
+            id = f"OpenAILambdaLayer-{deploy_target}",
+            code = Code.from_asset("websocketApp/lambdas/layers/openai_module.zip"),
+            compatible_runtimes=[RUNTIMES["python3.6"],RUNTIMES["python3.7"], RUNTIMES["python3.8"], RUNTIMES["python3.9"]],
+            compatible_architectures=[LAMBDA_ARCHITECTURE["x86"], LAMBDA_ARCHITECTURE["arm64"]],
+            removal_policy=cdk.RemovalPolicy.DESTROY
+        )
 
-        # Addtional Permissions
+        # Attach Layers to Lambda functions
+        text_chat_function.add_layers(open_ai_layer)
+        voice_chat_function.add_layers(open_ai_layer)
+
+
+        # Attach Addtional Permissions
         polly_policy = iam.PolicyStatement(
             effect=iam.Effect.ALLOW,
             resources=["*"],

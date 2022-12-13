@@ -38,6 +38,8 @@ def lambda_handler(event, context):
     logger.info(event)
     body = json.loads(event["body"])
     message = body["message"]
+    
+    # gpt3 part
 
     # text to speech by polly
     speech = convert_text_to_speech("Takumi", message)
@@ -58,20 +60,20 @@ def lambda_handler(event, context):
         api_gateway_connection.post_to_connection(
             ConnectionId=connection_id,
             Data=json.dumps({
-                "statusCode": status_code,
-                "speech": base64.b64encode(speech)
-            })
+            "statusCode": 200,
+            "message": message,
+            "type": "data:audio/mp3;base64,",
+            "speech": base64.b64encode(speech).decode("utf-8"),
+        })
         )
         logger.info(f"speech was sent correctly at {connection_id}")
-    except APIGWPostConnectionError("Couldn't post to connection from apigateway") as e:
-        logger.exception(e)
+    except:
+        logger.exception("post to connection not successed")
         status_code = 504
     return {
         "statusCode": status_code
     }
 
-class APIGWPostConnectionError(Exception):
-    pass
 
 def convert_text_to_speech(voice: str, text: str):
     if voice not in ["Takumi"]:
