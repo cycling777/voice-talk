@@ -52,6 +52,7 @@
           "lambda": {
             "ws_connect_disconnect_function": "function_ws_connect_disconnect.yml",
             "text_chat_function": "function_ws_text_chat.yml",
+            "voice_chat_function": "function_ws_voice_chat.yml",
             "authorizer_function": "function_authorizer.yml"
           },
           "apigateway": {
@@ -64,6 +65,7 @@
         "connections_table": "ws_connection_table.yml",
         "ws_connect_disconnect_function": "ws_connect_disconnect.yml",
         "ws_text_chat_function": "ws_text_chat.yml",
+        "ws_voice_chat_function": "ws_voice_chat.yml",
         "websocket_apigateway": "ws_apigateway.yml"
       }
     }

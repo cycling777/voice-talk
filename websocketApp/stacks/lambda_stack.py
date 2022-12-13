@@ -17,13 +17,14 @@ class LambdaStack(cdk.Stack):
         # Get confiuration file path
         ws_connect_disconnect_function_file_path = f'config/{deploy_target}/lambda/{lambda_file_names["ws_connect_disconnect_function"]}'
         text_chat_function_file_path = f'config/{deploy_target}/lambda/{lambda_file_names["text_chat_function"]}'
+        voice_chat_function_file_path = f'config/{deploy_target}/lambda/{lambda_file_names["voice_chat_function"]}'
         authorizer_function_file_path = f'config/{deploy_target}/lambda/{lambda_file_names["authorizer_function"]}'
         lambda_entry_path = self.node.try_get_context("LAMBDA_ROOT_PATH")
 
         # Create IAM Role for lambda
         lambda_role = Role(
             self,
-            id="Websocket-fuction-role",
+            id="Websocket-function-role",
             assumed_by=ServicePrincipal(service="lambda.amazonaws.com"),
             managed_policies=[
                 ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
@@ -52,6 +53,10 @@ class LambdaStack(cdk.Stack):
             yaml_path=text_chat_function_file_path, 
             **common_config_for_lambda
         )
+        voice_chat_function_config = ReadPythonLamdbaConfig(
+            yaml_path=voice_chat_function_file_path, 
+            **common_config_for_lambda
+        )
         authorizer_function_config = ReadPythonLamdbaConfig(
             yaml_path=authorizer_function_file_path, 
             **common_config_for_lambda
@@ -60,11 +65,13 @@ class LambdaStack(cdk.Stack):
         # Create lamnda instances
         ws_connect_disconnect_function = PythonFunction(self, **ws_connect_disconnect_function_config.config)
         text_chat_function = PythonFunction(self, **text_chat_function_config.config)
+        voice_chat_function = PythonFunction(self, **voice_chat_function_config.config)
         authorizer_function = PythonFunction(self, **authorizer_function_config.config)
 
         # Return Instances
         self.lambda_function = {
             "ws_connect_disconnect_function": ws_connect_disconnect_function,
             "text_chat_function": text_chat_function,
+            "voice_chat_function": voice_chat_function,
             "authorizer_function": authorizer_function
         }
