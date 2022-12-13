@@ -37,12 +37,14 @@ def lambda_handler(event, context):
     message = body["message"]
 
     # make chatting answer bellow
-    try:
-        api_gateway_connection.get_connection(ConnectionId=connection_id)
-    except ClientError:
-        logger.exception(
-            "Couldn't establish connection %s.", connection_id)
+    if api_gateway_connection.get_connection(ConnectionId=connection_id):
+        status_code = 200
+    else:
+        logger.exception("Couldn't establish connection %s.", connection_id)
         status_code = 503
+        return {
+            "statusCode": status_code,
+        }
 
     try:
         api_gateway_connection.post_to_connection(

@@ -56,6 +56,7 @@ class WebsocketApplicationStack(LambdaStack):
 
         # Add grant to lambda function
         websocket_stage.grant_management_api_access(self.lambda_function["text_chat_function"])
+        websocket_stage.grant_management_api_access(self.lambda_function["voice_chat_function"])
 
         # Return Insatnces
         self.apigateway = {

@@ -1,8 +1,10 @@
 import os
+import sys
+import base64
 import json
 import boto3
 import logging
-from botocore.exceptions import ClientError
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -15,6 +17,7 @@ ssm = boto3.client('ssm', REGION)
 STAGE_URL = ssm.get_parameter(Name=f'/WebsocketAPI/{DEPLOY_TARGET}/StageURL', WithDecryption=True)["Parameter"]["Value"]
 API_GATEWAY_URL = "https://" + STAGE_URL[6:]
 
+polly_c = boto3.client('polly')
 api_gateway_connection = boto3.client(
     "apigatewaymanagementapi",
     endpoint_url=API_GATEWAY_URL, # provided by the WebSocketStage stack.
@@ -36,22 +39,30 @@ def lambda_handler(event, context):
     body = json.loads(event["body"])
     message = body["message"]
 
-    # make chatting answer bellow
-    try:
-        api_gateway_connection.get_connection(ConnectionId=connection_id)
-    except ClientError:
-        logger.exception(
-            "Couldn't establish connection %s.", connection_id)
-        status_code = 503
+    # text to speech by polly
+    speech = convert_text_to_speech("Takumi", message)
 
+
+    # make chatting answer bellow
+    if api_gateway_connection.get_connection(ConnectionId=connection_id):
+        logger.info(f"ConnectionId id is {connection_id}")
+        status_code = 200
+    else:
+        logger.exception(f"Couldn't establish connection {connection_id}.")
+        status_code = 503
+        return {
+            "statusCode": status_code,
+        }
+    
     try:
         api_gateway_connection.post_to_connection(
             ConnectionId=connection_id,
             Data=json.dumps({
                 "statusCode": status_code,
-                "message": message
+                "speech": base64.b64encode(speech)
             })
         )
+        logger.info(f"speech was sent correctly at {connection_id}")
     except APIGWPostConnectionError("Couldn't post to connection from apigateway") as e:
         logger.exception(e)
         status_code = 504
@@ -61,3 +72,17 @@ def lambda_handler(event, context):
 
 class APIGWPostConnectionError(Exception):
     pass
+
+def convert_text_to_speech(voice: str, text: str):
+    if voice not in ["Takumi"]:
+        logger.info('Only support Takumi voice')
+        sys.exit(1)
+    response = polly_c.synthesize_speech(
+                   VoiceId=voice,
+                   Engine='neural',
+                   LanguageCode="ja-JP",
+                   OutputFormat='mp3',
+                   TextType='ssml',
+                   Text = f'<speak>{text}></speak>')
+
+    return response['AudioStream'].read()
