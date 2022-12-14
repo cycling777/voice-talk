@@ -36,11 +36,11 @@
     "@aws-cdk/aws-ecs:disableExplicitDeploymentControllerForCircuitBreaker": true,
     "LAMBDA_ROOT_PATH": "websocketApp/lambdas",
     "general": {
-      "ACCOUNT": "958152586967",
+      "ACCOUNT": "123456789",
       "REGION": "us-east-1",
-      "GITHUB_REPOSITORY": "IPI-k-watanabe/talking3",
+      "GITHUB_REPOSITORY": "YOUR REPOSITORY",
       "GITHUB_BRANCH": "main",
-      "CODESTAR_CONNECTION_ARN": "arn:aws:codestar-connections:us-east-1:958152586967:connection/c5c2b5da-4b6a-4c74-937f-6a73532c0b0a"
+      "CODESTAR_CONNECTION_ARN": "arn:aws:codestar-connections:*********************************************"
     },
     "test": {
       "config_file_names": {
